@@ -1,3 +1,8 @@
+--How to use
+--place in where you do lua
+--add require "tools"
+--to get access to these simple but effective functions
+
 local mem = flycast.memory;
 local gui = flycast.ui;
 local emu = flycast.state;
