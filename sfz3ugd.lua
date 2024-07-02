@@ -4,6 +4,12 @@ emu = flycast.state;
 
 require "tools"
 
+--[[
+	What's left
+	Figure out all projectile slots
+	Frame Delay
+	Throws
+]]
 
 nametable = {
 	"Ryu",
@@ -78,6 +84,11 @@ player(640,16,0xc420744)
 player(16,300,0xc420ba0)
 player(640,300,0xc420ffc)
 
+for pj = 0,3,1 do
+projectile(0x8c422320-(0x158*pj))
+projectile(0x8c423340-(0x158*pj))
+end
+	
 end
 
 
@@ -198,6 +209,55 @@ if pl_active ~= 0 then
 	end
 
 --player end
+end
+
+function projectile(addr)
+	local active = mem.read8(addr)
+
+	local pj_flip = mem.read8(addr+0xb)
+
+	local pjx = mem.read16s(addr+0x12)*cpsx
+	local pjy = mem.read16s(addr+0x16)*cpsy
+
+	local anim_pnt = mem.read32(addr+0x1c)
+
+	local cbset_pnt = mem.read32(addr+0xb8)
+	local unkn_pnt = mem.read32(addr+0xbc)
+	local head_pnt = mem.read32(addr+0xc0)
+	local body_pnt = mem.read32(addr+0xc4)
+	local legs_pnt = mem.read32(addr+0xc8)
+	local attk_pnt = mem.read32(addr+0xd0)
+
+	local activebox = mem.read32(addr+0xf0)
+	local pnt_118 = mem.read32(addr+0x118)
+
+--math
+	if wbar > 0 then
+		use_x = (pjx-camx)+wbar
+		use_y = (camy-pjy)+(230*cpsy)
+	else
+		use_x = (pjx-camx)
+		use_y = (camy-pjy)+(230*cpsy)+hbar
+	end
+
+	local xflip = (-1)^(pj_flip&1)
+
+	local head_loc = head_pnt+(mem.read8(activebox+00)*8);
+	local body_loc = body_pnt+(mem.read8(activebox+01)*8);
+	local legs_loc = legs_pnt+(mem.read8(activebox+02)*8);
+
+	local attk_id = (mem.read8(pnt_118+1))
+	local attk_loc = attk_pnt+attk_id*0x20;
+
+	if pl_active ~= 0 then
+		--draw
+			drawaxis(use_x,use_y,4)
+			draw_colbox(head_loc,use_x,use_y,xflip,0x78ff8888,0xff22ff88)
+			draw_colbox(body_loc,use_x,use_y,xflip,0x78ff8888,0xff22ff88)
+			draw_colbox(legs_loc,use_x,use_y,xflip,0x78ff8888,0xff22ff88)
+			draw_colbox(attk_loc,use_x,use_y,xflip,0x780000ff,0xffff77ff)
+		
+	end		
 end
 
 flycast_callbacks = {
